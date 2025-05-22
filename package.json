@@ -1,0 +1,18 @@
+{
+  "name": "login-project",
+  "version": "1.0.0",
+  "description": "Electron Login Uygulaması",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["electron", "login", "bootstrap"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bootstrap": "^5.3.0",
+    "electron": "^28.0.0",
+    "sweetalert2": "^11.10.0"
+  }
+} 
