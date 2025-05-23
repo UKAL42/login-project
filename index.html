@@ -3,46 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Sayfası</title>
-    <!-- Bootstrap CSS -->
-    <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link href="styles.css" rel="stylesheet">
+    <title>E-Ticaret</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="bg-light">
-    <div class="container">
+<body>
+    <!-- Bildirim Sistemi -->
+    <div id="notification" class="notification d-none">
+        <div class="notification-content">
+            <span id="notification-message"></span>
+            <button type="button" class="btn-close" onclick="hideNotification()"></button>
+        </div>
+    </div>
+
+    <!-- Giriş/Kayıt Bölümü -->
+    <div id="auth-container" class="container">
         <div class="row justify-content-center align-items-center min-vh-100">
             <div class="col-md-6 col-lg-4">
-                <div class="card shadow">
-                    <div class="card-body p-5">
-                        <h2 class="text-center mb-4">
-                            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064155.png" alt="login" width="48" style="margin-bottom:10px;"><br>
-                            Giriş Yap
-                        </h2>
-                        <form id="loginForm">
-                            <div class="mb-3">
-                                <label for="username" class="form-label">Kullanıcı Adı</label>
-                                <input type="text" class="form-control" id="username" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Şifre</label>
-                                <input type="password" class="form-control" id="password" required>
-                            </div>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary">Giriş Yap</button>
-                            </div>
-                        </form>
-                    </div>
+                <!-- Giriş Formu -->
+                <div id="login-form-container" class="auth-form">
+                    <h2 class="text-center mb-4">Giriş Yap</h2>
+                    <form id="login-form">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="login-identifier" placeholder="Kullanıcı Adı veya E-posta" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" class="form-control" id="login-password" placeholder="Şifre" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Giriş Yap</button>
+                        <p class="text-center mt-3">
+                            Hesabınız yok mu? <a href="#" id="show-register">Kayıt Ol</a>
+                        </p>
+                    </form>
+                </div>
+
+                <!-- Kayıt Formu -->
+                <div id="register-form-container" class="auth-form d-none">
+                    <h2 class="text-center mb-4">Kayıt Ol</h2>
+                    <form id="register-form">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="register-username" placeholder="Kullanıcı Adı" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="email" class="form-control" id="register-email" placeholder="E-posta" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" class="form-control" id="register-password" placeholder="Şifre" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Kayıt Ol</button>
+                        <p class="text-center mt-3">
+                            Zaten hesabınız var mı? <a href="#" id="show-login">Giriş Yap</a>
+                        </p>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- SweetAlert2 -->
-    <script src="node_modules/sweetalert2/dist/sweetalert2.all.min.js"></script>
-    <!-- Custom JS -->
-    <script src="renderer.js"></script>
+    <!-- Ana Ekran -->
+    <div id="main-container" class="container d-none">
+        <!-- Üst Menü -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">E-Ticaret</a>
+                <div class="d-flex align-items-center w-100 justify-content-end">
+                    <div class="me-3 flex-grow-1" style="max-width:320px;">
+                        <input type="text" class="form-control" id="search-input" placeholder="Ürün ara...">
+                    </div>
+                    <div class="btn-group me-3">
+                        <button class="btn btn-outline-primary category-btn active" data-category="elektronik">Elektronik</button>
+                        <button class="btn btn-outline-primary category-btn" data-category="kitap">Kitap</button>
+                        <button class="btn btn-outline-primary category-btn" data-category="giyim">Giyim</button>
+                    </div>
+                    <button class="btn btn-primary position-relative me-2" id="cart-btn">
+                        Sepet
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cart-count">0</span>
+                    </button>
+                    <button class="btn btn-outline-secondary me-2 d-none" id="account-btn">Hesap</button>
+                    <button class="btn btn-outline-danger" id="logout-btn">Çıkış Yap</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Ürünler -->
+        <div class="row" id="products-section"></div>
+    </div>
+
+    <!-- Hesap Modal -->
+    <div class="modal fade" id="account-modal" tabindex="-1" aria-labelledby="accountModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="accountModalLabel">Hesap Bilgileri</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body" id="account-info-section">
+                    <!-- JS ile doldurulacak -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    <button type="button" class="btn btn-danger" id="account-logout-btn">Çıkış Yap</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sepet Modal -->
+    <div class="modal fade" id="cart-modal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cartModalLabel">Sepetim</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body" id="cart-items"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    <button type="button" class="btn btn-primary" id="checkout-btn">Sepeti Onayla</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ödeme Modal -->
+    <div class="modal fade" id="payment-modal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentModalLabel">Ödeme</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body" id="payment-section">
+                    <div id="card-visual" class="mb-4"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="back-to-cart-btn">Sepete Dön</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
 </body>
 </html> 
